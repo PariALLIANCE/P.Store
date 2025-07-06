@@ -1,0 +1,2979 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P.Soft Store</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6366F1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="P.Soft Store">
+    <meta name="description" content="P.Soft Store - Un compte pour toutes nos applications">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/Pstore.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/Pstore.png">
+    <link rel="manifest" href="/manifest.json">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366F1',
+                        secondary: '#8B5CF6',
+                        accent: '#06B6D4',
+                        surface: '#1E293B',
+                        'surface-light': '#334155',
+                        'text-primary': '#F8FAFC',
+                        'text-secondary': '#94A3B8'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    },
+                    backdropBlur: {
+                        'xs': '2px',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Disable text selection and copying */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Allow selection for input fields */
+        input, textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+        
+        /* Disable right-click context menu */
+        body {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            background-attachment: fixed;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* Disable drag and drop */
+        img {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+            pointer-events: none;
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .app-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .app-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .app-item {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .app-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .floating-action {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .feature-gradient {
+            background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 50%, #8B5CF6 100%);
+        }
+        
+        .scroll-container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .nav-indicator {
+            transition: all 0.3s ease;
+            height: 2px;
+            background: linear-gradient(90deg, #6366F1, #8B5CF6);
+            border-radius: 999px;
+        }
+        
+        .search-glow {
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3), 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+        
+        .category-chip {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.2s ease;
+        }
+        
+        .category-chip.active {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .app-icon {
+            border-radius: 22%;
+        }
+
+        .content-container {
+            padding-bottom: 80px;
+            max-height: calc(100vh - 110px);
+            overflow-y: auto;
+        }
+
+        .search-content-container {
+            padding-bottom: 80px;
+            max-height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+
+        .detail-content-container {
+            padding-bottom: 80px;
+            max-height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .download-btn:hover {
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+        }
+
+        .screenshot-container {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 16px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .screenshot-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .screenshot {
+            flex-shrink: 0;
+            width: 200px;
+            height: 360px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .screenshot:hover {
+            transform: scale(1.02);
+        }
+
+        .screenshot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: auto;
+        }
+
+        /* Install Banner */
+        .install-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 2000;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .install-banner.show {
+            transform: translateY(0);
+        }
+
+        .install-banner-content {
+            display: flex;
+            align-items: center;
+            flex-1;
+        }
+
+        .install-banner-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .install-banner-text {
+            flex: 1;
+        }
+
+        .install-banner-title {
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .install-banner-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            line-height: 1.2;
+        }
+
+        .install-banner-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .install-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .install-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .install-close-btn {
+            background: none;
+            border: none;
+            color: white;
+            padding: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+
+        .install-close-btn:hover {
+            opacity: 1;
+        }
+
+        /* Adjust main content when banner is shown */
+        .main-app.banner-shown {
+            padding-top: 56px;
+        }
+
+        .main-app.banner-shown .glass-strong {
+            top: 56px;
+        }
+
+        /* Image Viewer Modal */
+        .image-viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .image-viewer-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .image-viewer-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-viewer-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .image-viewer-close {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+        }
+
+        .image-viewer-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .image-viewer-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+        }
+
+        .image-viewer-nav:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .image-viewer-prev {
+            left: -70px;
+        }
+
+        .image-viewer-next {
+            right: -70px;
+        }
+
+        /* Auth screen styles */
+        .auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            color: #F8FAFC;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .auth-header {
+            padding: 40px 0 20px;
+            text-align: center;
+        }
+        
+        .auth-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #6366F1;
+        }
+        
+        .auth-subtitle {
+            font-size: 16px;
+            color: #94A3B8;
+            margin-bottom: 20px;
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: none;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px 0;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            color: #94A3B8;
+            transition: color 0.3s, background-color 0.2s ease;
+        }
+        
+        .auth-tab.active {
+            color: #6366F1;
+        }
+        
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background-color: #6366F1;
+            border-radius: 3px 3px 0 0;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+        
+        .auth-form {
+            padding: 20px;
+            display: none;
+            animation: fadeUp 0.5s ease;
+        }
+        
+        @keyframes fadeUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #F8FAFC;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            font-size: 16px;
+            color: #F8FAFC;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: #6366F1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+        }
+        
+        .form-input::placeholder {
+            color: #94A3B8;
+        }
+        
+        .form-error {
+            color: #ff4842;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+            animation: shakeX 0.75s ease;
+        }
+        
+        @keyframes shakeX {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+            20%, 40%, 60%, 80% { transform: translateX(4px); }
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .button:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+        
+        .button:hover {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+        }
+
+        .button:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: #94A3B8;
+            cursor: not-allowed;
+        }
+
+        .log-message {
+            margin-top: 15px;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            white-space: pre-line;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+          
+        .log-message.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+          
+        .log-message.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22C55E;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+          
+        .log-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .button.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .button.loading .btn-text {
+            visibility: hidden;
+        }
+        
+        .button.loading .btn-loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -10px;
+            margin-left: -10px;
+            visibility: visible;
+        }
+
+        .form-footer {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .form-footer-text {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #94A3B8;
+        }
+        
+        .form-link {
+            color: #6366F1;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        
+        .form-link:hover {
+            text-decoration: underline;
+            color: #4F46E5;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            color: #F8FAFC;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            opacity: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            color: #F8FAFC;
+            padding: 12px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+            z-index: 1000;
+            max-width: 90%;
+            text-align: center;
+            line-height: 1.4;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+
+        .notification.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22C55E;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .notification.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .notification.info {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366F1;
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        /* User menu popup */
+        .user-menu {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 8px;
+            min-width: 200px;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+        }
+
+        .user-menu.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .user-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            color: #F8FAFC;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-menu-item.danger {
+            color: #EF4444;
+        }
+
+        .user-menu-item.danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .user-menu-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+        }
+
+        .user-email {
+            padding: 12px 16px;
+            font-size: 12px;
+            color: #94A3B8;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 4px;
+        }
+
+        /* Review styles */
+        .review-form {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+
+        .star {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            color: #64748B;
+            transition: color 0.2s ease;
+        }
+
+        .star.active {
+            color: #FBBF24;
+        }
+
+        .star:hover {
+            color: #FBBF24;
+        }
+
+        .review-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .review-item.user-review {
+            border-color: rgba(99, 102, 241, 0.3);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 12px;
+        }
+
+        .review-user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        .review-stars {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 4px;
+        }
+
+        .review-star {
+            width: 14px;
+            height: 14px;
+            color: #FBBF24;
+        }
+
+        .review-date {
+            font-size: 12px;
+            color: #94A3B8;
+            margin-left: auto;
+        }
+
+        .edit-review-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #94A3B8;
+        }
+
+        .edit-review-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #F8FAFC;
+        }
+
+        /* PIN Modal */
+        .pin-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .pin-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .pin-modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 90%;
+            width: 350px;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .pin-modal.show .pin-modal-content {
+            transform: scale(1);
+        }
+
+        .pin-input-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .pin-input {
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #F8FAFC;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .pin-input:focus {
+            border-color: #6366F1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+        }
+
+        /* Main app hidden by default */
+        .main-app {
+            display: none;
+        }
+
+        .main-app.active {
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .auth-header {
+                padding: 20px 0 15px;
+            }
+            
+            .auth-title {
+                font-size: 20px;
+            }
+
+            .user-menu {
+                right: 10px;
+                top: 65px;
+            }
+
+            .image-viewer-nav {
+                width: 40px;
+                height: 40px;
+            }
+
+            .image-viewer-prev {
+                left: -50px;
+            }
+
+            .image-viewer-next {
+                right: -50px;
+            }
+
+            .install-banner {
+                padding: 10px 12px;
+            }
+
+            .install-banner-icon {
+                width: 28px;
+                height: 28px;
+                margin-right: 10px;
+            }
+
+            .install-banner-title {
+                font-size: 13px;
+            }
+
+            .install-banner-subtitle {
+                font-size: 11px;
+            }
+
+            .install-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-text-primary font-sans" oncontextmenu="return false;" ondragstart="return false;" onselectstart="return false;">
+    <!-- Install Banner -->
+    <div id="install-banner" class="install-banner">
+        <div class="install-banner-content">
+            <div class="install-banner-icon">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+            </div>
+            <div class="install-banner-text">
+                <div class="install-banner-title">Installer P.Soft Store</div>
+                <div class="install-banner-subtitle">Accédez rapidement à toutes vos applications</div>
+            </div>
+        </div>
+        <div class="install-banner-actions">
+            <button id="install-button" class="install-btn">Installer</button>
+            <button id="install-close" class="install-close-btn">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="image-viewer-modal" class="image-viewer-modal">
+        <div class="image-viewer-content">
+            <button class="image-viewer-close" id="image-viewer-close">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            
+            <button class="image-viewer-nav image-viewer-prev" id="image-viewer-prev">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            
+            <img id="image-viewer-image" class="image-viewer-image" src="" alt="">
+            
+            <button class="image-viewer-nav image-viewer-next" id="image-viewer-next">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading" class="loading">
+        <div style="font-weight: bold; font-size: 24px; color: #6366F1; margin-top: 20px;">P.Soft Store</div>
+        <div style="margin-top: 10px; color: #94A3B8;">Chargement...</div>
+    </div>
+
+    <!-- PIN Modal -->
+    <div id="pin-modal" class="pin-modal">
+        <div class="pin-modal-content">
+            <h3 class="text-xl font-bold mb-2 text-white" id="pin-modal-title">Configurer votre code PIN</h3>
+            <p class="text-text-secondary mb-6" id="pin-modal-description">Créez un code PIN de 4 chiffres pour sécuriser votre compte</p>
+            
+            <div class="pin-input-container">
+                <input type="text" class="pin-input" maxlength="1" id="pin-0">
+                <input type="text" class="pin-input" maxlength="1" id="pin-1">
+                <input type="text" class="pin-input" maxlength="1" id="pin-2">
+                <input type="text" class="pin-input" maxlength="1" id="pin-3">
+            </div>
+            
+            <div class="flex gap-3">
+                <button id="pin-cancel" class="flex-1 py-3 px-6 bg-gray-600 text-white rounded-xl font-medium hover:bg-gray-700 transition-colors">
+                    Annuler
+                </button>
+                <button id="pin-confirm" class="flex-1 py-3 px-6 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-medium hover:opacity-90 transition-opacity">
+                    Confirmer
+                </button>
+            </div>
+            
+            <div id="pin-error" class="mt-4 text-red-400 text-sm" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="auth-screen" style="display: none;">
+        <div class="auth-header">
+            <h1 class="auth-title">P.Soft Store</h1>
+            <p class="auth-subtitle">Un compte pour toutes nos applications</p>
+        </div>
+        
+        <div class="auth-tabs">
+            <div class="auth-tab active" id="login-tab">Connexion</div>
+            <div class="auth-tab" id="register-tab">Inscription</div>
+        </div>
+        
+        <div id="login-form" class="auth-form active">
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="login-email" placeholder="Votre email">
+                <div id="login-email-error" class="form-error">Veuillez entrer un email valide</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Mot de passe</label>
+                <input type="password" class="form-input" id="login-password" placeholder="Votre mot de passe">
+                <div id="login-password-error" class="form-error">Le mot de passe est obligatoire</div>
+            </div>
+            
+            <div id="login-log" class="log-message" style="display:none;"></div>
+
+            <div class="form-footer">
+                <button class="button" id="loginBtn">
+                    <span class="btn-loader" style="display:none;"></span>
+                    <span class="btn-text">Se connecter</span>
+                </button>
+                <p class="form-footer-text">
+                    Vous n'avez pas de compte ? <a href="#" class="form-link" id="goto-register">S'inscrire</a>
+                </p>
+            </div>
+        </div>
+        
+        <div id="register-form" class="auth-form">
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="register-email" placeholder="Votre adresse email">
+                <div id="register-email-error" class="form-error">Veuillez entrer un email valide</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Mot de passe</label>
+                <input type="password" class="form-input" id="register-password" placeholder="Créez un mot de passe sécurisé">
+                <div id="register-password-error" class="form-error">Le mot de passe doit contenir au moins 6 caractères</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Confirmer le mot de passe</label>
+                <input type="password" class="form-input" id="register-confirm-password" placeholder="Confirmez votre mot de passe">
+                <div id="register-confirm-password-error" class="form-error">Les mots de passe ne correspondent pas</div>
+            </div>
+            
+            <div id="register-log" class="log-message" style="display:none;"></div>
+
+            <div class="form-footer">
+                <button class="button" id="registerBtn">
+                    <span class="btn-loader" style="display:none;"></span>
+                    <span class="btn-text">S'inscrire</span>
+                </button>
+                <p class="form-footer-text">
+                    Vous avez déjà un compte ? <a href="#" class="form-link" id="goto-login">Se connecter</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="main-app" class="main-app">
+        <!-- Header principal compact -->
+        <header id="main-header" class="glass-strong sticky top-0 z-50 backdrop-blur-xl">
+            <div class="px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <img src="https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/Pstore.png" alt="P.Store" class="w-10 h-10 object-contain" />
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button id="lock-btn" class="p-2 rounded-xl glass hover:glass-strong transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </button>
+                        <button id="user-avatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-sm font-semibold cursor-pointer hover:shadow-lg transition-all relative">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Header de recherche -->
+        <header id="search-header" class="hidden glass-strong sticky top-0 z-50 backdrop-blur-xl">
+            <div class="px-4 py-3">
+                <div class="flex items-center space-x-4">
+                    <button id="back-btn" class="p-2 rounded-xl glass hover:glass-strong transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <div class="flex-1 relative">
+                        <input 
+                            type="text" 
+                            id="search-input" 
+                            placeholder="Rechercher des applications..." 
+                            class="w-full px-4 py-3 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-2xl text-base text-text-primary placeholder-text-secondary focus:outline-none focus:border-primary focus:search-glow transition-all"
+                        >
+                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <svg class="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Header de détails d'application -->
+        <header id="detail-header" class="hidden glass-strong sticky top-0 z-50 backdrop-blur-xl">
+            <div class="px-4 py-3">
+                <div class="flex items-center space-x-4">
+                    <button id="detail-back-btn" class="p-2 rounded-xl glass hover:glass-strong transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <div class="flex items-center space-x-3 flex-1">
+                        <div>
+                            <h1 class="text-base font-semibold">Détails de l'application</h1>
+                        </div>
+                    </div>
+                    <button class="p-2 rounded-xl glass hover:glass-strong transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- User Menu Popup -->
+        <div id="user-menu" class="user-menu">
+            <div class="user-email" id="user-email-display">
+                <!-- Email will be displayed here -->
+            </div>
+            <div class="user-menu-item" id="logout-option">
+                <svg class="user-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                Se déconnecter
+            </div>
+            <div class="user-menu-item danger" id="delete-account-option">
+                <svg class="user-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Supprimer le compte
+            </div>
+        </div>
+
+        <!-- Contenu principal -->
+        <main class="pb-16">
+            <!-- Section Nouveautés avec header -->
+            <section id="featured-section" class="content-container">
+                <div class="px-6 py-6 space-y-6">
+                    <!-- Applications en vedette -->
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-bold">Applications en vedette</h2>
+                        
+                        <!-- Grande carte featured - King Pronos -->
+                        <div class="relative rounded-3xl overflow-hidden feature-gradient p-8 text-white cursor-pointer" data-app="kingpronos">
+                            <div class="relative z-10">
+                                <div class="flex items-center space-x-3 mb-4">
+                                    <div class="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center overflow-hidden">
+                                        <img src="https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/KingPronos/KingPronos.png" alt="King Pronos" class="w-12 h-12 object-contain" />
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold">King Pronos</h3>
+                                        <p class="opacity-90">Prédictions sportives professionnelles</p>
+                                    </div>
+                                </div>
+                                <p class="text-sm opacity-80 mb-6 leading-relaxed">
+                                    Obtenez les meilleures prédictions sportives avec des analyses approfondies et des statistiques en temps réel pour maximiser vos gains.
+                                </p>
+                                <button class="px-6 py-3 bg-white bg-opacity-20 rounded-2xl font-medium hover:bg-opacity-30 transition-all">
+                                    Découvrir maintenant
+                                </button>
+                            </div>
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-white bg-opacity-10 rounded-full transform translate-x-16 -translate-y-16"></div>
+                            <div class="absolute bottom-0 left-0 w-24 h-24 bg-white bg-opacity-5 rounded-full transform -translate-x-12 translate-y-12"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section Applications avec liste compacte -->
+            <section id="apps-section" class="hidden content-container">
+                <div class="px-6 py-6">
+                    <!-- Liste des applications -->
+                    <div class="space-y-1">
+                        <!-- King Pronos -->
+                        <div class="app-item flex items-center py-3 rounded-lg transition-colors" data-app="kingpronos">
+                            <div class="w-14 h-14 rounded-2xl overflow-hidden mr-4">
+                                <img src="https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/KingPronos/KingPronos.png" alt="King Pronos" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-white font-medium text-base">King Pronos</h3>
+                                <p class="text-text-secondary text-sm">P.Soft Store • Sport</p>
+                                <div class="flex items-center text-xs text-text-secondary mt-1">
+                                    <span class="flex items-center">
+                                        <span class="text-yellow-400 mr-1" id="app-rating-display">4.9</span>
+                                        <svg class="w-3 h-3 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                        </svg>
+                                    </span>
+                                    <span class="mr-2">•</span>
+                                    <span class="mr-2">&lt;2mo</span>
+                                    <span class="mr-2">•</span>
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                    </svg>
+                                    <span>1k+</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section Recherche -->
+            <section id="search-section" class="hidden search-content-container">
+                <div class="px-6 py-6">
+                    <div id="search-results">
+                        <div class="text-center py-16">
+                            <div class="w-20 h-20 mx-auto mb-6 glass rounded-3xl flex items-center justify-center">
+                                <svg class="w-10 h-10 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">Rechercher des applications</h3>
+                            <p class="text-text-secondary">Découvrez de nouvelles applications</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section Détails d'application -->
+            <section id="detail-section" class="hidden detail-content-container">
+                <div class="px-6 py-6 space-y-6">
+                    <!-- En-tête de l'app avec icône et infos principales -->
+                    <div class="flex items-start space-x-4">
+                        <div id="detail-app-icon" class="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0">
+                            <img src="https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/KingPronos/KingPronos.png" alt="King Pronos" class="w-full h-full object-cover" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h1 id="detail-app-title" class="text-2xl font-bold mb-1">King Pronos</h1>
+                            <p id="detail-app-developer" class="text-text-secondary mb-2">P.Soft Store</p>
+                            <p id="detail-app-category" class="text-sm text-text-secondary mb-4">Sport • Gratuit</p>
+                            
+                            <!-- Statistiques -->
+                            <div class="flex items-center space-x-6 text-sm">
+                                <div class="text-center">
+                                    <div class="flex items-center space-x-1">
+                                        <span id="detail-app-rating" class="font-semibold">4.9</span>
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                        </svg>
+                                    </div>
+                                    <p class="text-text-secondary text-xs">Notes</p>
+                                </div>
+                                <div class="text-center">
+                                    <p id="detail-app-size" class="font-semibold">&lt;2mo</p>
+                                    <p class="text-text-secondary text-xs">Taille</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="font-semibold">18+</p>
+                                    <p class="text-text-secondary text-xs">Âge</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bouton de téléchargement simple -->
+                    <div class="w-full">
+                        <button id="download-btn" class="w-full download-btn text-white font-semibold py-4 px-6 rounded-2xl transition-all">
+                            <div class="flex items-center justify-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <span>Télécharger</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Captures d'écran -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Captures d'écran</h3>
+                        <div class="screenshot-container">
+                            <div class="screenshot" data-screenshot="0">
+                                <img src="https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/KingPronos/kingpronosdes1.png" alt="Screenshot 1" />
+                            </div>
+                            <div class="screenshot" data-screenshot="1">
+                                <img src="https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/KingPronos/kingpronosdes2.png" alt="Screenshot 2" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">À propos de cette application</h3>
+                        <div id="detail-app-description" class="text-text-secondary leading-relaxed">
+                            <p class="mb-4">
+                                King Pronos est l'application ultime pour les passionnés de paris sportifs qui cherchent à améliorer leurs prédictions et maximiser leurs gains.
+                            </p>
+                            <p class="mb-4">
+                                Notre équipe d'experts analyse en profondeur les statistiques, les tendances et les performances des équipes pour vous fournir les meilleurs conseils de paris.
+                            </p>
+                            <p class="mb-4">
+                                Fonctionnalités principales :
+                            </p>
+                            <ul class="list-disc list-inside space-y-1 mb-4">
+                                <li>Prédictions quotidiennes d'experts</li>
+                                <li>Analyses statistiques détaillées</li>
+                                <li>Suivi des performances en temps réel</li>
+                                <li>Interface moderne et intuitive</li>
+                                <li>Notifications pour les meilleurs paris</li>
+                                <li>Historique complet de vos prédictions</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Section Notes et avis -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Notes et avis</h3>
+                        
+                        <!-- Résumé des notes -->
+                        <div class="glass rounded-2xl p-4 mb-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <span id="average-rating" class="text-3xl font-bold">4.9</span>
+                                        <div class="flex space-x-1">
+                                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                            </svg>
+                                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                            </svg>
+                                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                            </svg>
+                                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                            </svg>
+                                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <p id="review-count" class="text-text-secondary text-sm">0 avis</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formulaire d'ajout d'avis -->
+                        <div id="review-form-container" class="review-form">
+                            <h4 class="text-base font-semibold mb-4">Donnez votre avis</h4>
+                            
+                            <div class="star-rating" id="star-rating">
+                                <svg class="star" data-rating="1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                                <svg class="star" data-rating="2" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                                <svg class="star" data-rating="3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                                <svg class="star" data-rating="4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                                <svg class="star" data-rating="5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
+                            
+                            <textarea 
+                                id="review-text" 
+                                placeholder="Partagez votre expérience avec cette application..."
+                                class="w-full p-4 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-xl text-text-primary placeholder-text-secondary focus:outline-none focus:border-primary resize-none"
+                                rows="4"
+                            ></textarea>
+                            
+                            <button id="submit-review" class="mt-4 bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-xl font-medium hover:opacity-90 transition-opacity">
+                                Publier l'avis
+                            </button>
+                        </div>
+
+                        <!-- Liste des avis -->
+                        <div id="reviews-container" class="space-y-4">
+                            <!-- Les avis seront chargés ici -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Navigation bottom -->
+        <nav class="fixed bottom-0 left-0 right-0 glass-strong backdrop-blur-xl border-t border-white border-opacity-10">
+            <div class="flex justify-around py-2">
+                <button class="nav-tab flex flex-col items-center py-1 px-3 relative" data-tab="featured">
+                    <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Nouveautés</span>
+                    <div class="nav-indicator absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8"></div>
+                </button>
+                
+                <button class="nav-tab flex flex-col items-center py-1 px-3 relative text-text-secondary" data-tab="apps">
+                    <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                    <span class="text-xs font-medium">Apps</span>
+                    <div class="nav-indicator absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0"></div>
+                </button>
+                
+                <button class="nav-tab flex flex-col items-center py-1 px-3 relative text-text-secondary" data-tab="search">
+                    <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Recherche</span>
+                    <div class="nav-indicator absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0"></div>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, serverTimestamp, query, orderBy, limit, getDocs, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Disable F12, Ctrl+Shift+I, Ctrl+U, etc.
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+                (e.ctrlKey && e.key === 'U') ||
+                (e.ctrlKey && e.key === 's') ||
+                (e.ctrlKey && e.key === 'a')) {
+                e.preventDefault();
+            }
+        });
+
+        // Install banner functionality
+        let deferredPrompt;
+        let isInstalled = false;
+
+        // Check if app is already installed
+        function checkIfInstalled() {
+            // Check display mode
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            const isInWebAppiOS = window.navigator.standalone;
+            const isInWebAppChrome = window.matchMedia('(display-mode: standalone)').matches;
+            
+            return isStandalone || isInWebAppiOS || isInWebAppChrome;
+        }
+
+        // Show install banner
+        function showInstallBanner() {
+            const banner = document.getElementById('install-banner');
+            const mainApp = document.getElementById('main-app');
+            
+            if (banner && mainApp) {
+                banner.classList.add('show');
+                mainApp.classList.add('banner-shown');
+            }
+        }
+
+        // Hide install banner
+        function hideInstallBanner() {
+            const banner = document.getElementById('install-banner');
+            const mainApp = document.getElementById('main-app');
+            
+            if (banner && mainApp) {
+                banner.classList.remove('show');
+                mainApp.classList.remove('banner-shown');
+            }
+        }
+
+        // Handle install
+        async function handleInstall() {
+            if (deferredPrompt) {
+                // Show the install prompt
+                deferredPrompt.prompt();
+                
+                // Wait for the user to respond to the prompt
+                const result = await deferredPrompt.userChoice;
+                
+                if (result.outcome === 'accepted') {
+                    console.log('Utilisateur a accepté l\'installation');
+                    showNotification('Application en cours d\'installation...', 'success');
+                    hideInstallBanner();
+                } else {
+                    console.log('Utilisateur a refusé l\'installation');
+                }
+                
+                // Reset the deferred prompt
+                deferredPrompt = null;
+            } else {
+                // Fallback for browsers that don't support PWA installation
+                showNotification('Veuillez ajouter cette page à votre écran d\'accueil', 'info');
+            }
+        }
+
+        // Setup install banner events
+        function setupInstallBanner() {
+            const installButton = document.getElementById('install-button');
+            const closeButton = document.getElementById('install-close');
+            
+            if (installButton) {
+                installButton.addEventListener('click', handleInstall);
+            }
+            
+            if (closeButton) {
+                closeButton.addEventListener('click', hideInstallBanner);
+            }
+        }
+
+        // Listen for beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('beforeinstallprompt event fired');
+            
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            
+            // Save the event for later use
+            deferredPrompt = e;
+            
+            // Check if app is already installed
+            if (!checkIfInstalled()) {
+                // Show install banner
+                setTimeout(() => {
+                    showInstallBanner();
+                }, 2000); // Show after 2 seconds
+            }
+        });
+
+        // Listen for app installation
+        window.addEventListener('appinstalled', (e) => {
+            console.log('PWA was installed');
+            isInstalled = true;
+            hideInstallBanner();
+            showNotification('Application installée avec succès !', 'success');
+            deferredPrompt = null;
+        });
+
+        // Check if installed on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkIfInstalled()) {
+                isInstalled = true;
+                console.log('App is already installed');
+            }
+        });
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDTPLxUiA8lj82kqc6CyCPLQDITc0CtLUE",
+            authDomain: "ichat-betai.firebaseapp.com",
+            databaseURL: "https://ichat-betai-default-rtdb.firebaseio.com",
+            projectId: "ichat-betai",
+            storageBucket: "ichat-betai.appspot.com",
+            messagingSenderId: "168337722600",
+            appId: "1:168337722600:web:beb331f83cc4778c5b4d5d",
+            measurementId: "G-STXPSZN7X8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Global variables
+        let isLoggedIn = false;
+        let currentUser = null;
+        let currentUserData = null;
+        let currentAppId = null;
+        let selectedRating = 0;
+        let userPin = null;
+        let pinEnabled = false;
+        let isSettingPin = false;
+        let isConfirmingPin = false;
+        let temporaryPin = null;
+        let currentUserReview = null;
+        let isEditingReview = false;
+        let currentScreenshots = [];
+        let currentScreenshotIndex = 0;
+
+        // Dark mode support
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // App data - Only King Pronos
+        const appData = {
+            kingpronos: {
+                name: "King Pronos",
+                developer: "P.Soft Store",
+                category: "Sport • Gratuit",
+                rating: "4.9",
+                size: "<2mo",
+                downloads: "1k+",
+                description: `King Pronos est l'application ultime pour les passionnés de paris sportifs qui cherchent à améliorer leurs prédictions et maximiser leurs gains.
+
+Notre équipe d'experts analyse en profondeur les statistiques, les tendances et les performances des équipes pour vous fournir les meilleurs conseils de paris.
+
+Fonctionnalités principales :
+• Prédictions quotidiennes d'experts
+• Analyses statistiques détaillées
+• Suivi des performances en temps réel
+• Interface moderne et intuitive
+• Notifications pour les meilleurs paris
+• Historique complet de vos prédictions`,
+                icon: "https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/KingPronos/KingPronos.png",
+                screenshots: [
+                    "https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/KingPronos/kingpronosdes1.png",
+                    "https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/KingPronos/kingpronosdes2.png"
+                ],
+                apkUrl: "https://github.com/PariALLIANCE/P.Store/raw/main/KingPronos/King%20Pronos.apk"
+            }
+        };
+
+        // Navigation state
+        let previousTab = 'featured';
+
+        // Image viewer functionality
+        function showImageViewer(screenshots, startIndex = 0) {
+            currentScreenshots = screenshots;
+            currentScreenshotIndex = startIndex;
+            
+            const modal = document.getElementById('image-viewer-modal');
+            const image = document.getElementById('image-viewer-image');
+            
+            image.src = currentScreenshots[currentScreenshotIndex];
+            modal.classList.add('show');
+            
+            updateImageViewerNavigation();
+        }
+
+        function hideImageViewer() {
+            const modal = document.getElementById('image-viewer-modal');
+            modal.classList.remove('show');
+        }
+
+        function navigateImage(direction) {
+            if (direction === 'next') {
+                currentScreenshotIndex = (currentScreenshotIndex + 1) % currentScreenshots.length;
+            } else {
+                currentScreenshotIndex = (currentScreenshotIndex - 1 + currentScreenshots.length) % currentScreenshots.length;
+            }
+            
+            const image = document.getElementById('image-viewer-image');
+            image.src = currentScreenshots[currentScreenshotIndex];
+            
+            updateImageViewerNavigation();
+        }
+
+        function updateImageViewerNavigation() {
+            const prevBtn = document.getElementById('image-viewer-prev');
+            const nextBtn = document.getElementById('image-viewer-next');
+            
+            // Hide navigation if only one image
+            if (currentScreenshots.length <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+            }
+        }
+
+        // Setup image viewer events
+        document.getElementById('image-viewer-close').addEventListener('click', hideImageViewer);
+        document.getElementById('image-viewer-prev').addEventListener('click', () => navigateImage('prev'));
+        document.getElementById('image-viewer-next').addEventListener('click', () => navigateImage('next'));
+
+        // Close on background click
+        document.getElementById('image-viewer-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideImageViewer();
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('image-viewer-modal');
+            if (modal.classList.contains('show')) {
+                if (e.key === 'Escape') {
+                    hideImageViewer();
+                } else if (e.key === 'ArrowLeft') {
+                    navigateImage('prev');
+                } else if (e.key === 'ArrowRight') {
+                    navigateImage('next');
+                }
+            }
+        });
+
+        // PIN Modal functionality
+        function showPinModal(mode = 'setup') {
+            const modal = document.getElementById('pin-modal');
+            const title = document.getElementById('pin-modal-title');
+            const description = document.getElementById('pin-modal-description');
+            const error = document.getElementById('pin-error');
+            
+            // Clear inputs
+            for(let i = 0; i < 4; i++) {
+                document.getElementById(`pin-${i}`).value = '';
+            }
+            error.style.display = 'none';
+            
+            if (mode === 'setup') {
+                title.textContent = 'Configurer votre code PIN';
+                description.textContent = 'Créez un code PIN de 4 chiffres pour sécuriser votre compte';
+                isSettingPin = true;
+                isConfirmingPin = false;
+            } else if (mode === 'confirm') {
+                title.textContent = 'Confirmer votre code PIN';
+                description.textContent = 'Saisissez à nouveau votre code PIN pour le confirmer';
+                isSettingPin = false;
+                isConfirmingPin = true;
+            } else if (mode === 'verify') {
+                title.textContent = 'Entrez votre code PIN';
+                description.textContent = 'Saisissez votre code PIN pour accéder à l\'application';
+                isSettingPin = false;
+                isConfirmingPin = false;
+            }
+            
+            modal.classList.add('show');
+            document.getElementById('pin-0').focus();
+        }
+
+        function hidePinModal() {
+            const modal = document.getElementById('pin-modal');
+            modal.classList.remove('show');
+        }
+
+        function setupPinInputs() {
+            const inputs = document.querySelectorAll('.pin-input');
+            
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', function(e) {
+                    // Only allow numbers
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                    if (this.value.length === 1 && index < 3) {
+                        inputs[index + 1].focus();
+                    }
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                        inputs[index - 1].focus();
+                    } else if (e.key === 'Enter') {
+                        handlePinConfirm();
+                    }
+                });
+            });
+        }
+
+        function getCurrentPin() {
+            let pin = '';
+            for(let i = 0; i < 4; i++) {
+                pin += document.getElementById(`pin-${i}`).value;
+            }
+            return pin;
+        }
+
+        async function handlePinConfirm() {
+            const pin = getCurrentPin();
+            const error = document.getElementById('pin-error');
+            
+            if (pin.length !== 4) {
+                error.textContent = 'Veuillez saisir un code PIN de 4 chiffres';
+                error.style.display = 'block';
+                return;
+            }
+            
+            if (isSettingPin) {
+                // First time setting PIN
+                temporaryPin = pin;
+                showPinModal('confirm');
+            } else if (isConfirmingPin) {
+                // Confirming PIN
+                if (pin === temporaryPin) {
+                    // Save PIN to user data
+                    try {
+                        await setDoc(doc(db, "Users", currentUser.uid), {
+                            ...currentUserData,
+                            pin: pin,
+                            pinEnabled: true,
+                            updatedAt: serverTimestamp()
+                        });
+                        
+                        userPin = pin;
+                        pinEnabled = true;
+                        hidePinModal();
+                        showNotification('Code PIN configuré avec succès !', 'success');
+                        
+                    } catch (error) {
+                        console.error('Erreur sauvegarde PIN:', error);
+                        showNotification('Erreur lors de la configuration du PIN', 'error');
+                    }
+                } else {
+                    error.textContent = 'Les codes PIN ne correspondent pas';
+                    error.style.display = 'block';
+                }
+            } else {
+                // Verifying existing PIN
+                if (pin === userPin) {
+                    hidePinModal();
+                    showMainApp();
+                } else {
+                    error.textContent = 'Code PIN incorrect';
+                    error.style.display = 'block';
+                    // Clear inputs
+                    for(let i = 0; i < 4; i++) {
+                        document.getElementById(`pin-${i}`).value = '';
+                    }
+                    document.getElementById('pin-0').focus();
+                }
+            }
+        }
+
+        // Utility functions
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            if (!notification) return;
+            
+            notification.classList.remove('show');
+            
+            setTimeout(() => {
+                notification.textContent = message;
+                notification.className = 'notification ' + type;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    
+                    setTimeout(() => {
+                        notification.className = 'notification';
+                        notification.textContent = '';
+                    }, 300);
+                }, 3000);
+            }, 100);
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showAuthScreen() {
+            document.getElementById('auth-screen').style.display = 'flex';
+            document.getElementById('main-app').classList.remove('active');
+            hideLoading();
+        }
+
+        function showMainApp() {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-app').classList.add('active');
+            hideLoading();
+            showTabContent('featured');
+        }
+
+        // Check for existing session
+        function checkExistingSession() {
+            return new Promise((resolve) => {
+                // Check if user is already authenticated
+                const unsubscribe = onAuthStateChanged(auth, (user) => {
+                    unsubscribe(); // Stop listening after first check
+                    resolve(user);
+                });
+            });
+        }
+
+        // User menu functions
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('user-menu');
+            userMenu.classList.toggle('show');
+        }
+
+        function hideUserMenu() {
+            const userMenu = document.getElementById('user-menu');
+            userMenu.classList.remove('show');
+        }
+
+        // Click outside to close menu
+        document.addEventListener('click', function(event) {
+            const userAvatar = document.getElementById('user-avatar');
+            const userMenu = document.getElementById('user-menu');
+            
+            if (!userAvatar.contains(event.target) && !userMenu.contains(event.target)) {
+                hideUserMenu();
+            }
+        });
+
+        // Simple download functionality
+        function downloadApp() {
+            const link = document.createElement('a');
+            link.href = appData.kingpronos.apkUrl;
+            link.download = 'King Pronos.apk';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('Téléchargement démarré !', 'success');
+        }
+
+        // Review functionality
+        function setupReviewSystem() {
+            const stars = document.querySelectorAll('.star');
+            const submitButton = document.getElementById('submit-review');
+            
+            // Star rating interaction
+            stars.forEach((star, index) => {
+                star.addEventListener('click', () => {
+                    selectedRating = index + 1;
+                    updateStarDisplay(selectedRating);
+                });
+                
+                star.addEventListener('mouseenter', () => {
+                    updateStarDisplay(index + 1);
+                });
+            });
+            
+            document.getElementById('star-rating').addEventListener('mouseleave', () => {
+                updateStarDisplay(selectedRating);
+            });
+            
+            // Submit review
+            submitButton.addEventListener('click', submitReview);
+        }
+
+        function updateStarDisplay(rating) {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        async function submitReview() {
+            if (!currentUser) {
+                showNotification('Vous devez être connecté pour donner un avis', 'error');
+                return;
+            }
+            
+            if (selectedRating === 0) {
+                showNotification('Veuillez sélectionner une note', 'error');
+                return;
+            }
+            
+            const reviewText = document.getElementById('review-text').value.trim();
+            if (!reviewText) {
+                showNotification('Veuillez écrire votre avis', 'error');
+                return;
+            }
+            
+            try {
+                // Check if user already reviewed this app
+                const existingReviewQuery = query(
+                    collection(db, 'Reviews'),
+                    where('appId', '==', currentAppId),
+                    where('userId', '==', currentUser.uid)
+                );
+                const existingReviews = await getDocs(existingReviewQuery);
+                
+                if (!existingReviews.empty && !isEditingReview) {
+                    showNotification('Vous avez déjà donné votre avis sur cette application', 'error');
+                    return;
+                }
+                
+                if (isEditingReview && !existingReviews.empty) {
+                    // Update existing review
+                    const reviewDoc = existingReviews.docs[0];
+                    await updateDoc(reviewDoc.ref, {
+                        rating: selectedRating,
+                        text: reviewText,
+                        updatedAt: serverTimestamp()
+                    });
+                    showNotification('Avis mis à jour avec succès !', 'success');
+                } else {
+                    // Create new review
+                    const reviewData = {
+                        appId: currentAppId,
+                        userId: currentUser.uid,
+                        userEmail: currentUser.email,
+                        rating: selectedRating,
+                        text: reviewText,
+                        createdAt: serverTimestamp()
+                    };
+                    
+                    const reviewRef = doc(collection(db, 'Reviews'));
+                    await setDoc(reviewRef, reviewData);
+                    showNotification('Avis publié avec succès !', 'success');
+                }
+                
+                // Reset form
+                selectedRating = 0;
+                updateStarDisplay(0);
+                document.getElementById('review-text').value = '';
+                isEditingReview = false;
+                
+                // Hide the form
+                document.getElementById('review-form-container').style.display = 'none';
+                
+                // Reload reviews and update average
+                await loadReviews(currentAppId);
+                await updateAverageRating(currentAppId);
+                
+            } catch (error) {
+                console.error('Erreur publication avis:', error);
+                showNotification('Erreur lors de la publication de l\'avis', 'error');
+            }
+        }
+
+        async function editReview(reviewId) {
+            try {
+                // Get the review data
+                const reviewDoc = await getDoc(doc(db, 'Reviews', reviewId));
+                if (reviewDoc.exists()) {
+                    const reviewData = reviewDoc.data();
+                    
+                    // Show the form
+                    document.getElementById('review-form-container').style.display = 'block';
+                    
+                    // Fill the form with existing data
+                    selectedRating = reviewData.rating;
+                    updateStarDisplay(selectedRating);
+                    document.getElementById('review-text').value = reviewData.text;
+                    document.getElementById('submit-review').textContent = 'Modifier l\'avis';
+                    
+                    isEditingReview = true;
+                    
+                    // Scroll to form
+                    document.getElementById('review-form-container').scrollIntoView({ behavior: 'smooth' });
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de l\'avis:', error);
+                showNotification('Erreur lors du chargement de l\'avis', 'error');
+            }
+        }
+
+        async function loadReviews(appId) {
+            try {
+                const reviewsQuery = query(
+                    collection(db, 'Reviews'),
+                    where('appId', '==', appId),
+                    orderBy('createdAt', 'desc'),
+                    limit(10)
+                );
+                
+                const reviewsSnapshot = await getDocs(reviewsQuery);
+                const reviewsContainer = document.getElementById('reviews-container');
+                
+                if (reviewsSnapshot.empty) {
+                    reviewsContainer.innerHTML = `
+                        <div class="text-center py-8">
+                            <p class="text-text-secondary">Aucun avis pour le moment</p>
+                            <p class="text-sm text-text-secondary mt-2">Soyez le premier à donner votre avis !</p>
+                        </div>
+                    `;
+                    // Show the form for new review
+                    document.getElementById('review-form-container').style.display = 'block';
+                    document.getElementById('submit-review').textContent = 'Publier l\'avis';
+                    return;
+                }
+                
+                let reviewsHTML = '';
+                let userHasReviewed = false;
+                
+                reviewsSnapshot.forEach((doc) => {
+                    const review = doc.data();
+                    const reviewId = doc.id;
+                    const date = review.createdAt ? review.createdAt.toDate().toLocaleDateString('fr-FR') : 'Date inconnue';
+                    const userInitial = review.userEmail.charAt(0).toUpperCase();
+                    const isUserReview = currentUser && review.userId === currentUser.uid;
+                    
+                    if (isUserReview) {
+                        userHasReviewed = true;
+                    }
+                    
+                    reviewsHTML += `
+                        <div class="review-item ${isUserReview ? 'user-review' : ''}">
+                            <div class="review-header">
+                                <div class="flex items-center flex-1">
+                                    <div class="review-user-avatar">${userInitial}</div>
+                                    <div>
+                                        <p class="font-medium text-sm">${review.userEmail.split('@')[0]} ${isUserReview ? '(Vous)' : ''}</p>
+                                        <div class="review-stars">
+                                            ${Array.from({length: 5}, (_, i) => `
+                                                <svg class="review-star ${i < review.rating ? 'text-yellow-400' : 'text-gray-400'}" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                                </svg>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="review-date">${date}</span>
+                            </div>
+                            <p class="text-text-secondary text-sm leading-relaxed">${review.text}</p>
+                            ${isUserReview ? `
+                                <button class="edit-review-btn" onclick="editReview('${reviewId}')" title="Modifier votre avis">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                reviewsContainer.innerHTML = reviewsHTML;
+                
+                // Show or hide the form based on whether user has reviewed
+                if (userHasReviewed && !isEditingReview) {
+                    document.getElementById('review-form-container').style.display = 'none';
+                } else if (!userHasReviewed) {
+                    document.getElementById('review-form-container').style.display = 'block';
+                    document.getElementById('submit-review').textContent = 'Publier l\'avis';
+                }
+                
+            } catch (error) {
+                console.error('Erreur chargement avis:', error);
+            }
+        }
+
+        // Make editReview available globally
+        window.editReview = editReview;
+
+        async function updateAverageRating(appId) {
+            try {
+                const reviewsQuery = query(
+                    collection(db, 'Reviews'),
+                    where('appId', '==', appId)
+                );
+                
+                const reviewsSnapshot = await getDocs(reviewsQuery);
+                
+                if (reviewsSnapshot.empty) {
+                    document.getElementById('average-rating').textContent = '0.0';
+                    document.getElementById('review-count').textContent = '0 avis';
+                    document.getElementById('detail-app-rating').textContent = '0.0';
+                    document.getElementById('app-rating-display').textContent = '0.0';
+                    return;
+                }
+                
+                let totalRating = 0;
+                let reviewCount = 0;
+                
+                reviewsSnapshot.forEach((doc) => {
+                    const review = doc.data();
+                    totalRating += review.rating;
+                    reviewCount++;
+                });
+                
+                const averageRating = (totalRating / reviewCount).toFixed(1);
+                
+                document.getElementById('average-rating').textContent = averageRating;
+                document.getElementById('review-count').textContent = `${reviewCount} avis`;
+                document.getElementById('detail-app-rating').textContent = averageRating;
+                document.getElementById('app-rating-display').textContent = averageRating;
+                
+            } catch (error) {
+                console.error('Erreur calcul moyenne:', error);
+            }
+        }
+
+        // Auth functions
+        function setupAuth() {
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const loginTab = document.getElementById('login-tab');
+            const registerTab = document.getElementById('register-tab');
+            const gotoRegister = document.getElementById('goto-register');
+            const gotoLogin = document.getElementById('goto-login');
+            
+            loginBtn.addEventListener('click', loginUser);
+            registerBtn.addEventListener('click', registerUser);
+            
+            loginTab.addEventListener('click', () => switchAuthTab('login'));
+            registerTab.addEventListener('click', () => switchAuthTab('login'));
+            gotoRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchAuthTab('register');
+            });
+            gotoLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchAuthTab('login');
+            });
+            
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    isLoggedIn = true;
+                    
+                    try {
+                        await loadUserData();
+                        
+                        // Check if PIN is enabled and required
+                        if (pinEnabled && userPin) {
+                            showPinModal('verify');
+                        } else {
+                            showMainApp();
+                        }
+                        
+                        console.log(`Utilisateur connecté: ${user.email}`);
+                    } catch (error) {
+                        console.error(`Erreur initialisation: ${error.message}`);
+                        showNotification("Erreur lors de l'initialisation", "error");
+                    }
+                } else {
+                    isLoggedIn = false;
+                    currentUser = null;
+                    currentUserData = null;
+                    userPin = null;
+                    pinEnabled = false;
+                    showAuthScreen();
+                }
+            });
+
+            // Setup user menu events
+            document.getElementById('user-avatar').addEventListener('click', toggleUserMenu);
+            document.getElementById('logout-option').addEventListener('click', logoutUser);
+            document.getElementById('delete-account-option').addEventListener('click', deleteAccount);
+            
+            // Setup lock button
+            document.getElementById('lock-btn').addEventListener('click', function() {
+                if (!pinEnabled) {
+                    showPinModal('setup');
+                }
+            });
+            
+            // Setup PIN modal events
+            document.getElementById('pin-cancel').addEventListener('click', hidePinModal);
+            document.getElementById('pin-confirm').addEventListener('click', handlePinConfirm);
+            
+            setupPinInputs();
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const loginTab = document.getElementById('login-tab');
+            const registerTab = document.getElementById('register-tab');
+            
+            if (tab === 'register') {
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+            } else {
+                registerForm.classList.remove('active');
+                loginForm.classList.add('active');
+                registerTab.classList.remove('active');
+                loginTab.classList.add('active');
+            }
+            
+            clearAuthErrors();
+        }
+
+        function clearAuthErrors() {
+            document.querySelectorAll('.form-error').forEach(error => {
+                error.style.display = 'none';
+            });
+            document.querySelectorAll('.log-message').forEach(log => {
+                log.style.display = 'none';
+            });
+        }
+
+        async function loginUser() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const button = document.getElementById('loginBtn');
+            const logElement = document.getElementById('login-log');
+            
+            clearAuthErrors();
+            
+            let hasError = false;
+            
+            if (!email || !email.includes('@')) {
+                document.getElementById('login-email-error').style.display = 'block';
+                hasError = true;
+            }
+            
+            if (!password) {
+                document.getElementById('login-password-error').style.display = 'block';
+                hasError = true;
+            }
+            
+            if (hasError) return;
+            
+            button.classList.add('loading');
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                
+                console.log(`Connexion réussie pour ${email}`);
+                logElement.textContent = 'Connexion réussie !';
+                logElement.className = 'log-message success';
+                logElement.style.display = 'block';
+                
+            } catch (error) {
+                console.error(`Erreur connexion: ${error.message}`);
+                
+                let errorMessage = 'Erreur de connexion';
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'Aucun compte trouvé avec cet email';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Mot de passe incorrect';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Adresse email invalide';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Trop de tentatives. Réessayez plus tard';
+                }
+                
+                logElement.textContent = errorMessage;
+                logElement.className = 'log-message error';
+                logElement.style.display = 'block';
+            }
+            
+            button.classList.remove('loading');
+        }
+
+        async function registerUser() {
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            const button = document.getElementById('registerBtn');
+            const logElement = document.getElementById('register-log');
+            
+            clearAuthErrors();
+            
+            let hasError = false;
+            
+            if (!email || !email.includes('@')) {
+                document.getElementById('register-email-error').style.display = 'block';
+                hasError = true;
+            }
+            
+            if (password.length < 6) {
+                document.getElementById('register-password-error').style.display = 'block';
+                hasError = true;
+            }
+            
+            if (password !== confirmPassword) {
+                document.getElementById('register-confirm-password-error').style.display = 'block';
+                hasError = true;
+            }
+            
+            if (hasError) return;
+            
+            button.classList.add('loading');
+            
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                const userData = {
+                    email: user.email,
+                    displayName: user.displayName || 'Utilisateur',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    uid: user.uid,
+                    pinEnabled: false
+                };
+                
+                await setDoc(doc(db, "Users", user.uid), userData);
+                
+                console.log(`Inscription réussie pour ${email}`);
+                logElement.textContent = 'Compte créé avec succès !';
+                logElement.className = 'log-message success';
+                logElement.style.display = 'block';
+                
+            } catch (error) {
+                console.error(`Erreur inscription: ${error.message}`);
+                
+                let errorMessage = 'Erreur lors de la création du compte';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'Un compte existe déjà avec cet email';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Adresse email invalide';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Le mot de passe est trop faible';
+                }
+                
+                logElement.textContent = errorMessage;
+                logElement.className = 'log-message error';
+                logElement.style.display = 'block';
+            }
+            
+            button.classList.remove('loading');
+        }
+
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const userDoc = await getDoc(doc(db, "Users", currentUser.uid));
+                
+                if (userDoc.exists()) {
+                    currentUserData = userDoc.data();
+                    
+                    // Check if PIN is configured
+                    if (currentUserData.pin) {
+                        userPin = currentUserData.pin;
+                        pinEnabled = currentUserData.pinEnabled || false;
+                    }
+                } else {
+                    const userData = {
+                        email: currentUser.email,
+                        displayName: currentUser.displayName || 'Utilisateur',
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp(),
+                        uid: currentUser.uid,
+                        pinEnabled: false
+                    };
+                    
+                    await setDoc(doc(db, "Users", currentUser.uid), userData);
+                    currentUserData = userData;
+                }
+                
+                updateUserAvatar();
+                updateUserEmailDisplay();
+                console.log('Données utilisateur chargées');
+                
+            } catch (error) {
+                console.error('Erreur chargement données utilisateur:', error);
+            }
+        }
+
+        function updateUserAvatar() {
+            const userAvatar = document.getElementById('user-avatar');
+            if (currentUser && userAvatar) {
+                const firstLetter = currentUser.email.charAt(0).toUpperCase();
+                userAvatar.innerHTML = `<span class="text-white font-semibold text-sm">${firstLetter}</span>`;
+            }
+        }
+
+        function updateUserEmailDisplay() {
+            const emailDisplay = document.getElementById('user-email-display');
+            if (currentUser && emailDisplay) {
+                emailDisplay.textContent = currentUser.email;
+            }
+        }
+
+        async function logoutUser() {
+            hideUserMenu();
+            try {
+                await signOut(auth);
+                console.log('Utilisateur déconnecté avec succès');
+                showNotification("Déconnecté avec succès", "success");
+                
+                isLoggedIn = false;
+                currentUser = null;
+                currentUserData = null;
+                userPin = null;
+                pinEnabled = false;
+                
+                showAuthScreen();
+                
+            } catch (error) {
+                console.error(`Erreur déconnexion: ${error.message}`);
+                showNotification("Erreur lors de la déconnexion", "error");
+            }
+        }
+
+        async function deleteAccount() {
+            hideUserMenu();
+            
+            if (!currentUser) return;
+            
+            const confirmDelete = confirm("Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible.");
+            
+            if (!confirmDelete) return;
+            
+            try {
+                // Delete user data from Firestore
+                await deleteDoc(doc(db, "Users", currentUser.uid));
+                
+                // Delete user account
+                await deleteUser(currentUser);
+                
+                console.log('Compte supprimé avec succès');
+                showNotification("Compte supprimé avec succès", "success");
+                
+                isLoggedIn = false;
+                currentUser = null;
+                currentUserData = null;
+                userPin = null;
+                pinEnabled = false;
+                
+                showAuthScreen();
+                
+            } catch (error) {
+                console.error(`Erreur suppression compte: ${error.message}`);
+                
+                let errorMessage = 'Erreur lors de la suppression du compte';
+                if (error.code === 'auth/requires-recent-login') {
+                    errorMessage = 'Veuillez vous reconnecter puis réessayer';
+                }
+                
+                showNotification(errorMessage, "error");
+            }
+        }
+
+        // Navigation functionality
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabType = this.getAttribute('data-tab');
+                
+                // Update navigation indicators
+                document.querySelectorAll('.nav-tab').forEach(t => {
+                    const indicator = t.querySelector('.nav-indicator');
+                    indicator.style.width = '0';
+                    t.classList.add('text-text-secondary');
+                    t.classList.remove('text-text-primary');
+                });
+                
+                // Activate current tab
+                this.classList.remove('text-text-secondary');
+                this.classList.add('text-text-primary');
+                const indicator = this.querySelector('.nav-indicator');
+                indicator.style.width = '32px';
+
+                // Show appropriate content
+                showTabContent(tabType);
+                previousTab = tabType;
+            });
+        });
+
+        function showTabContent(tabType) {
+            // Hide all sections and headers
+            document.getElementById('featured-section').classList.add('hidden');
+            document.getElementById('apps-section').classList.add('hidden');
+            document.getElementById('search-section').classList.add('hidden');
+            document.getElementById('detail-section').classList.add('hidden');
+            document.getElementById('main-header').classList.add('hidden');
+            document.getElementById('search-header').classList.add('hidden');
+            document.getElementById('detail-header').classList.add('hidden');
+
+            switch(tabType) {
+                case 'featured':
+                    document.getElementById('main-header').classList.remove('hidden');
+                    document.getElementById('featured-section').classList.remove('hidden');
+                    break;
+                case 'apps':
+                    document.getElementById('main-header').classList.remove('hidden');
+                    document.getElementById('apps-section').classList.remove('hidden');
+                    break;
+                case 'search':
+                    document.getElementById('search-header').classList.remove('hidden');
+                    document.getElementById('search-section').classList.remove('hidden');
+                    setTimeout(() => document.getElementById('search-input').focus(), 100);
+                    break;
+            }
+        }
+
+        function showAppDetail(appId) {
+            const app = appData[appId];
+            if (!app) return;
+
+            currentAppId = appId;
+
+            // Update detail content
+            document.getElementById('detail-app-icon').innerHTML = `<img src="${app.icon}" alt="${app.name}" class="w-full h-full object-cover" />`;
+            document.getElementById('detail-app-title').textContent = app.name;
+            document.getElementById('detail-app-developer').textContent = app.developer;
+            document.getElementById('detail-app-category').textContent = app.category;
+            document.getElementById('detail-app-rating').textContent = app.rating;
+            document.getElementById('detail-app-size').textContent = app.size;
+            document.getElementById('detail-app-description').innerHTML = formatDescription(app.description);
+
+            // Update screenshots with click handlers
+            const screenshotContainer = document.querySelector('.screenshot-container');
+            screenshotContainer.innerHTML = app.screenshots.map((screenshot, index) => `
+                <div class="screenshot" data-screenshot="${index}">
+                    <img src="${screenshot}" alt="Screenshot ${index + 1}" />
+                </div>
+            `).join('');
+
+            // Add click handlers to screenshots
+            document.querySelectorAll('.screenshot').forEach((screenshot, index) => {
+                screenshot.addEventListener('click', () => {
+                    showImageViewer(app.screenshots, index);
+                });
+            });
+
+            // Reset review form state
+            isEditingReview = false;
+            selectedRating = 0;
+            updateStarDisplay(0);
+            document.getElementById('review-text').value = '';
+            document.getElementById('submit-review').textContent = 'Publier l\'avis';
+
+            // Load reviews and update average
+            loadReviews(appId);
+            updateAverageRating(appId);
+
+            // Show detail section
+            document.getElementById('featured-section').classList.add('hidden');
+            document.getElementById('apps-section').classList.add('hidden');
+            document.getElementById('search-section').classList.add('hidden');
+            document.getElementById('main-header').classList.add('hidden');
+            document.getElementById('search-header').classList.add('hidden');
+            
+            document.getElementById('detail-header').classList.remove('hidden');
+            document.getElementById('detail-section').classList.remove('hidden');
+        }
+
+        function formatDescription(description) {
+            return description
+                .split('\n\n')
+                .map(paragraph => {
+                    if (paragraph.includes('•')) {
+                        const lines = paragraph.split('\n');
+                        const title = lines[0];
+                        const items = lines.slice(1);
+                        return `<p class="mb-4">${title}</p><ul class="list-disc list-inside space-y-1 mb-4">${items.map(item => `<li>${item.replace('• ', '')}</li>`).join('')}</ul>`;
+                    }
+                    return `<p class="mb-4">${paragraph}</p>`;
+                })
+                .join('');
+        }
+
+        // Back button functionality
+        document.getElementById('back-btn').addEventListener('click', function() {
+            const appsTab = document.querySelector('[data-tab="apps"]');
+            appsTab.click();
+        });
+
+        document.getElementById('detail-back-btn').addEventListener('click', function() {
+            const targetTab = document.querySelector(`[data-tab="${previousTab}"]`);
+            targetTab.click();
+        });
+
+        // App item click functionality
+        document.addEventListener('click', function(e) {
+            const appItem = e.target.closest('.app-item, [data-app]');
+            if (appItem) {
+                const appId = appItem.getAttribute('data-app');
+                if (appId && appData[appId]) {
+                    showAppDetail(appId);
+                }
+            }
+        });
+
+        // Download button functionality
+        document.getElementById('download-btn').addEventListener('click', downloadApp);
+
+        // Search functionality
+        document.getElementById('search-input').addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            const searchResults = document.getElementById('search-results');
+            
+            if (query.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="text-center py-16">
+                        <div class="w-20 h-20 mx-auto mb-6 glass rounded-3xl flex items-center justify-center">
+                            <svg class="w-10 h-10 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Rechercher des applications</h3>
+                        <p class="text-text-secondary">Découvrez de nouvelles applications</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Search in app data
+            const filteredApps = Object.entries(appData).filter(([id, app]) => 
+                app.name.toLowerCase().includes(query) || 
+                app.category.toLowerCase().includes(query) ||
+                app.developer.toLowerCase().includes(query)
+            );
+
+            if (filteredApps.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="text-center py-16">
+                        <div class="w-20 h-20 mx-auto mb-6 glass rounded-3xl flex items-center justify-center">
+                            <svg class="w-10 h-10 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0118 12a8 8 0 01-2.083 5.344M6 12H4a8 8 0 0116 0h-2m-6 2.5v5"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Aucun résultat</h3>
+                        <p class="text-text-secondary">Aucune application trouvée pour "${query}"</p>
+                    </div>
+                `;
+            } else {
+                searchResults.innerHTML = `
+                    <div class="space-y-1">
+                        <h3 class="text-lg font-semibold mb-4">Résultats pour "${query}"</h3>
+                        ${filteredApps.map(([id, app]) => `
+                            <div class="app-item flex items-center py-3 rounded-lg transition-colors cursor-pointer" data-app="${id}">
+                                <div class="w-14 h-14 rounded-2xl overflow-hidden mr-4">
+                                    <img src="${app.icon}" alt="${app.name}" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-white font-medium text-base">${app.name}</h3>
+                                    <p class="text-text-secondary text-sm">${app.developer} • ${app.category.split(' •')[0]}</p>
+                                    <div class="flex items-center text-xs text-text-secondary mt-1">
+                                        <span class="flex items-center">
+                                            <span class="text-yellow-400 mr-1">${app.rating}</span>
+                                            <svg class="w-3 h-3 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                            </svg>
+                                        </span>
+                                        <span class="mr-2">•</span>
+                                        <span class="mr-2">${app.size}</span>
+                                        <span class="mr-2">•</span>
+                                        <span>${app.downloads}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        });
+
+        // Create manifest.json dynamically
+        const manifest = {
+            "name": "P.Soft Store",
+            "short_name": "P.Store",
+            "description": "Un compte pour toutes nos applications",
+            "start_url": "/",
+            "display": "standalone",
+            "background_color": "#0F172A",
+            "theme_color": "#6366F1",
+            "orientation": "portrait",
+            "icons": [
+                {
+                    "src": "https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/Pstore.png",
+                    "sizes": "192x192",
+                    "type": "image/png",
+                    "purpose": "any maskable"
+                },
+                {
+                    "src": "https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/Pstore.png",
+                    "sizes": "512x512",
+                    "type": "image/png",
+                    "purpose": "any maskable"
+                }
+            ]
+        };
+
+        // Create service worker
+        const serviceWorkerCode = `
+const CACHE_NAME = 'psoft-store-v1';
+const urlsToCache = [
+    '/',
+    '/manifest.json',
+    'https://cdn.tailwindcss.com',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css',
+    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
+    'https://raw.githubusercontent.com/PariALLIANCE/P.Store/main/Pstore.png'
+];
+
+self.addEventListener('install', function(event) {
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(function(cache) {
+                return cache.addAll(urlsToCache);
+            })
+    );
+});
+
+self.addEventListener('fetch', function(event) {
+    event.respondWith(
+        caches.match(event.request)
+            .then(function(response) {
+                if (response) {
+                    return response;
+                }
+                return fetch(event.request);
+            }
+        )
+    );
+});
+        `;
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', async function() {
+            showLoading();
+            
+            // Create manifest and service worker files
+            const manifestBlob = new Blob([JSON.stringify(manifest, null, 2)], {type: 'application/json'});
+            const manifestUrl = URL.createObjectURL(manifestBlob);
+            document.querySelector('link[rel="manifest"]').href = manifestUrl;
+            
+            const swBlob = new Blob([serviceWorkerCode], {type: 'application/javascript'});
+            const swUrl = URL.createObjectURL(swBlob);
+            
+            // Register service worker
+            if ('serviceWorker' in navigator) {
+                try {
+                    await navigator.serviceWorker.register(swUrl);
+                    console.log('Service Worker registered successfully');
+                } catch (error) {
+                    console.log('Service Worker registration failed:', error);
+                }
+            }
+            
+            // Setup install banner
+            setupInstallBanner();
+            
+            // Check for existing session first
+            try {
+                const existingUser = await checkExistingSession();
+                if (existingUser) {
+                    console.log('Session existante trouvée pour:', existingUser.email);
+                    // onAuthStateChanged will handle the rest
+                } else {
+                    console.log('Aucune session existante');
+                    hideLoading();
+                    showAuthScreen();
+                }
+            } catch (error) {
+                console.error('Erreur vérification session:', error);
+                hideLoading();
+                showAuthScreen();
+            }
+            
+            setupAuth();
+            setupReviewSystem();
+            
+            console.log('P.Soft Store initialisé avec authentification Firebase, PWA, protection des données, visualiseur d\'images et bannière d\'installation');
+        });
+    </script>
+</body>
+</html>
