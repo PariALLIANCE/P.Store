@@ -1,7 +1,10 @@
 name: Update Matches Once
 
 on:
-  workflow_dispatch:   # Tu le lances manuellement depuis l’onglet "Actions"
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   update:
@@ -23,7 +26,7 @@ jobs:
           pip install requests beautifulsoup4
 
       - name: Run update script
-        run: python Ligues.py   # ✅ ton script
+        run: python Ligues.py
 
       - name: Commit and push changes
         run: |
